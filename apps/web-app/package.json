@@ -1,0 +1,35 @@
+{
+    "name": "monorepo-ethers-web-app",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "dev": "next dev",
+        "build": "next build",
+        "export": "next export",
+        "start": "next start"
+    },
+    "dependencies": {
+        "@emotion/react": "^11.10.6",
+        "@emotion/server": "^11.10.0",
+        "@mantine/core": "6.0.0",
+        "@mantine/hooks": "6.0.0",
+        "@mantine/next": "6.0.0",
+        "@mantine/notifications": "6.0.0",
+        "@semaphore-protocol/data": "3.9.0",
+        "@semaphore-protocol/group": "3.9.0",
+        "@semaphore-protocol/identity": "3.9.0",
+        "@semaphore-protocol/proof": "3.9.0",
+        "@tabler/icons-react": "^2.16.0",
+        "@types/react": "18.0.25",
+        "@types/react-dom": "18.0.8",
+        "arweave": "^1.13.7",
+        "dotenv": "^16.0.3",
+        "ethers": "^5.7.2",
+        "next": "13.2.3",
+        "next-pwa": "^5.6.0",
+        "react": "18.2.0",
+        "react-dom": "18.2.0",
+        "typescript": "^4.7.3",
+        "wagmi": "^0.12.10"
+    }
+}
