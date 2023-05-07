@@ -1,10 +1,10 @@
 import * as fs from "fs"
 
 async function main() {
-    const contractArtifactsPath = "apps/contracts/build/contracts/contracts/Feedback.sol"
+    const contractArtifactsPath = "apps/contracts/build/contracts/contracts/Post.sol"
     const webAppArtifactsPath = "apps/web-app/contract-artifacts"
 
-    await fs.promises.copyFile(`${contractArtifactsPath}/Feedback.json`, `${webAppArtifactsPath}/Feedback.json`)
+    await fs.promises.copyFile(`${contractArtifactsPath}/Post.json`, `${webAppArtifactsPath}/Post.json`)
 }
 
 main()
