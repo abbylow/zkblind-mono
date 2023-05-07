@@ -24,7 +24,7 @@ async function main() {
   // Deploy contracts with Relay
   const PostFactory = await ethers.getContractFactory("Post")
   const postContract = await PostFactory.connect(relaySigner)
-    .deploy(semaphoreAddress, groupId, 60, 604800)
+    .deploy(semaphoreAddress, groupId)
     .then((f) => f.deployed())
 
   writeFileSync(
@@ -50,4 +50,4 @@ if (require.main === module) {
 }
 
 // To deploy: npx hardhat run scripts/deployWithRelayAddToAdmin.ts
-// To verify: npx hardhat verify --network mumbai [DEPLOYED ADDRESS] [SEMAPHORE_CONTRACT_ADDRESS] [GROUP_ID] 60 604800
+// To verify: npx hardhat verify --network mumbai [DEPLOYED ADDRESS] [SEMAPHORE_CONTRACT_ADDRESS] [GROUP_ID]
