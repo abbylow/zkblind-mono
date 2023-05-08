@@ -58,7 +58,7 @@ describe("Post", () => {
     })
   })
 
-  describe("# sendFeedback", () => {
+  describe("# sendPost", () => {
     const wasmFilePath = `${config.paths.build["snark-artifacts"]}/semaphore.wasm`
     const zkeyFilePath = `${config.paths.build["snark-artifacts"]}/semaphore.zkey`
 

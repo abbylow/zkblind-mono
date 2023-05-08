@@ -10,7 +10,7 @@ import { Identity } from "@semaphore-protocol/identity";
 
 import SemaphoreContext from "@/context/SemaphoreContext";
 import { notifyError } from "@/utils/notification";
-import Feedback from "../../contract-artifacts/Feedback.json"
+import Post from "../../contract-artifacts/Post.json"
 
 const { publicRuntimeConfig: env } = getNextConfig();
 
@@ -64,8 +64,8 @@ export const IdentityProvider = ({ children }: { children: ReactNode }) => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            abi: Feedback.abi,
-            address: env.FEEDBACK_CONTRACT_ADDRESS,
+            abi: Post.abi,
+            address: env.POST_CONTRACT_ADDRESS,
             functionName: "joinGroup",
             functionParameters: [commitmentString]
           })

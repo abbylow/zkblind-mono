@@ -1,18 +1,19 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import getNextConfig from "next/config";
 import { Box, Button, Container, Skeleton, Stack, TextInput, Title } from '@mantine/core';
 import { Group as SemaphoreGroup } from "@semaphore-protocol/group";
 import { generateProof } from "@semaphore-protocol/proof";
 import { BigNumber, utils } from "ethers";
-
 import { useAccount } from "wagmi";
 import { useMediaQuery } from "@mantine/hooks";
+import { defaultAbiCoder } from "ethers/lib/utils.js";
+
 import SemaphoreContext from "@/context/SemaphoreContext";
 import trustedSetupArtifacts from "@/constants/artifacts";
 import { useIdentityContext } from "@/context/IdentityContext";
 import { notifyError, notifySuccess } from "@/utils/notification";
 import PostCard from "@/components/PostCard";
-import Feedback from "../../contract-artifacts/Feedback.json";
+import Post from "../../contract-artifacts/Post.json";
 
 const { publicRuntimeConfig: env } = getNextConfig();
 
@@ -46,59 +47,53 @@ export default function Homepage() {
         })
       });
       const uploadResponseJson = await uploadResponse.json()
-      console.log(uploadResponseJson.arTxId, uploadResponseJson.postId)
 
-      const signal = BigNumber.from(utils.formatBytes32String(uploadResponseJson.postId)).toString();
-      console.log('signal ', signal)
+      const arTxIdBytes32 = utils.keccak256(defaultAbiCoder.encode(['string'], [uploadResponseJson.arTxId]))
+      const signal = BigNumber.from(arTxIdBytes32).toString()
 
+      const { proof, merkleTreeRoot, nullifierHash } = await generateProof(
+        identity,
+        group,
+        signal, // external nullifier
+        signal, // signal
+        trustedSetupArtifacts
+      );
 
-      
-      // TODO: pass signal, postId, arTxId to smart contract to store
+      let response: any
 
-      // const { proof, merkleTreeRoot, nullifierHash } = await generateProof(
-      //   identity,
-      //   group,
-      //   // convertedUUID,
-      //   signal,
-      //   trustedSetupArtifacts
-      // );
+      if (env.OPENZEPPELIN_AUTOTASK_WEBHOOK) {
+        response = await fetch(env.OPENZEPPELIN_AUTOTASK_WEBHOOK, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            abi: Post.abi,
+            address: env.POST_CONTRACT_ADDRESS,
+            functionName: "sendPost",
+            functionParameters: [merkleTreeRoot, nullifierHash, proof, uploadResponseJson.arTxId]
+          })
+        })
+        const resJson = await response.json();
+        if (resJson.status === "error") throw Error('Autotask failed');
+      } else {
+        response = await fetch("api/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            merkleTreeRoot,
+            nullifierHash,
+            proof,
+            arweaveId: uploadResponseJson.arTxId,
+          })
+        });
+      }
 
-      // let response: any
-
-      // if (env.OPENZEPPELIN_AUTOTASK_WEBHOOK) {
-      //   response = await fetch(env.OPENZEPPELIN_AUTOTASK_WEBHOOK, {
-      //     method: "POST",
-      //     headers: { "Content-Type": "application/json" },
-      //     body: JSON.stringify({
-      //       abi: Feedback.abi,
-      //       address: env.FEEDBACK_CONTRACT_ADDRESS,
-      //       functionName: "sendFeedback",
-      //       functionParameters: [signal, merkleTreeRoot, nullifierHash, convertedUUID, proof]
-      //     })
-      //   })
-      //   const resJson = await response.json();
-      //   if (resJson.status === "error") throw Error('Autotask failed');
-      // } else {
-      //   response = await fetch("api/feedback", {
-      //     method: "POST",
-      //     headers: { "Content-Type": "application/json" },
-      //     body: JSON.stringify({
-      //       feedback: signal,
-      //       merkleTreeRoot,
-      //       nullifierHash,
-      //       externalNullifier: convertedUUID,
-      //       proof
-      //     })
-      //   });
-      // }
-
-      // if (response.status === 200) {
-      //   addFeedback(feedbackSignal);
-      //   notifySuccess({ title: "Success", message: "Posted successfully" });
-      // } else {
-      //   setTextFieldError("Fail to post");
-      //   notifyError({ title: "Failure", message: "Fail to post" });
-      // }
+      if (response.status === 200) {
+        // addFeedback(feedbackSignal); // TODO: display
+        notifySuccess({ title: "Success", message: "Posted successfully" });
+      } else {
+        setTextFieldError("Fail to post");
+        notifyError({ title: "Failure", message: "Fail to post" });
+      }
     } catch (error) {
       console.error(error)
       notifyError({ message: "Something went wrong" });
