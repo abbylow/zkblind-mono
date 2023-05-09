@@ -9,6 +9,9 @@ export type SemaphoreContextType = {
     addUser: (user: string) => void
     refreshFeedback: () => Promise<void>
     addFeedback: (feedback: string) => void
+    refreshPostSentEvents: () => Promise<void>
+    _arweaveMap: Record<string, string>
+    addArweaveMap: (signal: string, arTxId: string) => void
 }
 
 export default React.createContext<SemaphoreContextType>({
@@ -17,5 +20,8 @@ export default React.createContext<SemaphoreContextType>({
     refreshUsers: () => Promise.resolve(),
     addUser: () => {},
     refreshFeedback: () => Promise.resolve(),
-    addFeedback: () => {}
+    addFeedback: () => {},
+    refreshPostSentEvents: () => Promise.resolve(),
+    _arweaveMap: {},
+    addArweaveMap: () => {}
 })

@@ -1,27 +1,32 @@
 import { useContext, useState } from "react";
 import getNextConfig from "next/config";
-import { Box, Button, Container, Skeleton, Stack, TextInput, Title } from '@mantine/core';
+import dynamic from "next/dynamic";
+import { Box, Button, Center, Container, Loader, Skeleton, Stack, TextInput, Title } from '@mantine/core';
+import { useMediaQuery } from "@mantine/hooks";
 import { Group as SemaphoreGroup } from "@semaphore-protocol/group";
 import { generateProof } from "@semaphore-protocol/proof";
 import { BigNumber, utils } from "ethers";
-import { useAccount } from "wagmi";
-import { useMediaQuery } from "@mantine/hooks";
 import { defaultAbiCoder } from "ethers/lib/utils.js";
+import { useAccount } from "wagmi";
 
 import SemaphoreContext from "@/context/SemaphoreContext";
 import trustedSetupArtifacts from "@/constants/artifacts";
 import { useIdentityContext } from "@/context/IdentityContext";
 import { notifyError, notifySuccess } from "@/utils/notification";
-import PostCard from "@/components/PostCard";
 import Post from "../../contract-artifacts/Post.json";
 
 const { publicRuntimeConfig: env } = getNextConfig();
+
+const DynamicPostCard = dynamic(() => import('@/components/PostCard'), {
+  loading: () => <Skeleton height={120} />,
+  ssr: false,
+});
 
 // TODO: refresh the feedback at certain period of time to ensure users can see new stuff? 
 export default function Homepage() {
   const { isConnected } = useAccount();
   const { identity, inGlobalGroup } = useIdentityContext();
-  const { _users, addFeedback, _feedback } = useContext(SemaphoreContext);
+  const { _users, addFeedback, _feedback, addArweaveMap } = useContext(SemaphoreContext);
 
   const [feedbackInput, setFeedbackInput] = useState<string>('');
   const [isPosting, setIsPosting] = useState<boolean>(false);
@@ -88,7 +93,8 @@ export default function Homepage() {
       }
 
       if (response.status === 200) {
-        // addFeedback(feedbackSignal); // TODO: display
+        addFeedback(signal);
+        addArweaveMap(signal, uploadResponseJson.arTxId);
         notifySuccess({ title: "Success", message: "Posted successfully" });
       } else {
         setTextFieldError("Fail to post");
@@ -109,8 +115,8 @@ export default function Homepage() {
   return (
     <Container p="xl">
       <Stack spacing="xl">
-        <Title order={2}>Home</Title>
-        <Title order={4}>Text input only accepts 20 characters now. Work in progress to extend the length</Title>
+        <Title order={2}>Anonymous workplace social network</Title>
+        <Title order={4}>We are now supporting long content 🎉</Title>
         <Box display="flex" sx={{ gap: '0.5rem', flexDirection: largeScreen ? 'row' : 'column' }}>
           <TextInput
             placeholder="Post something anonymously"
@@ -132,24 +138,14 @@ export default function Homepage() {
         </Box>
 
         {
-          _feedback?.length < 1 && (
-            <>
-              <Skeleton visible={_feedback.length < 1} height={120}>
-              </Skeleton>
-              <Skeleton visible={_feedback.length < 1} height={120}>
-              </Skeleton>
-            </>
-          )
+          _feedback?.length < 1 && (<Center><Loader variant="dots" /></Center>)
         }
 
         {
-          _feedback.map(f => {
-            const feedback = JSON.parse(f);
-            return (
-              // TODO: show different groups accordingly
-              <PostCard key={feedback.post} group="Global" post={feedback.post} />
-            )
-          })
+          _feedback.map(f => (
+            // TODO: show different groups accordingly
+            <DynamicPostCard key={f} group="Global" arHashedId={f} />
+          ))
         }
       </Stack>
 
