@@ -50,4 +50,4 @@ if (require.main === module) {
 }
 
 // To deploy: npx hardhat run scripts/deployWithRelayAddToAdmin.ts
-// To verify: npx hardhat verify --network mumbai [DEPLOYED ADDRESS] [SEMAPHORE_CONTRACT_ADDRESS] [GROUP_ID]
+// To verify: npx hardhat verify --network mumbai [DEPLOYED_ADDRESS] [SEMAPHORE_CONTRACT_ADDRESS] [GROUP_ID]

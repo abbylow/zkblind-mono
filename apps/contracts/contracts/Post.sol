@@ -10,7 +10,7 @@ contract Post is Ownable {
 
   mapping(uint256 => string) public signalToArweaveTxs;
 
-  event PostSent(uint256 indexed signal, string indexed arweaveId);
+  event PostSent(uint256 indexed signal, string arweaveId);
 
   constructor(address semaphoreAddress, uint256 _groupId) Ownable() {
     semaphore = ISemaphore(semaphoreAddress);
