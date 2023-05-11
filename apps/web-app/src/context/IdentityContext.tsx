@@ -5,13 +5,10 @@ import React, {
   ReactNode,
   useEffect
 } from "react";
-import getNextConfig from "next/config";
 import { Identity } from "@semaphore-protocol/identity";
 
 import SemaphoreContext from "@/context/SemaphoreContext";
 import { notifyError } from "@/utils/notification";
-
-const { publicRuntimeConfig: env } = getNextConfig();
 
 interface IIdentityContext {
   identity: Identity | null,

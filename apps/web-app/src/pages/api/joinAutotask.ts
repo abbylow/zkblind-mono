@@ -35,7 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   )
   const eventName = "MemberAdded"
   const filter = semaphoreContract.filters[eventName]()
-  const events = await semaphoreContract.queryFilter(filter, semaphoreStartBlock)
+  const events = await semaphoreContract.queryFilter(filter, semaphoreStartBlock) // TODO: queryFilter pagination / max returned data?
 
   const members = events
     .filter((e) => e.args?.groupId.toString() === process.env.GROUP_ID)

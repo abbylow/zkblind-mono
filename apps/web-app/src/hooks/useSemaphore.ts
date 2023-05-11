@@ -44,7 +44,7 @@ export default function useSemaphore(): SemaphoreContextType {
   const refreshPostSentEvents = useCallback(async (): Promise<void> => {
     const eventName = "PostSent"
     const filter = postContract.filters[eventName]()
-    const events = await postContract.queryFilter(filter, postContractStartBlock)
+    const events = await postContract.queryFilter(filter, postContractStartBlock) // TODO: queryFilter pagination / max returned data?
 
     const arMap: Record<string, string> = {}
     events.forEach(({ data, topics }) => {
