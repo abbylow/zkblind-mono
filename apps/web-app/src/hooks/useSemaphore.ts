@@ -1,4 +1,3 @@
-import { SemaphoreEthers } from "@semaphore-protocol/data"
 import { Contract } from "@ethersproject/contracts"
 import { BigNumber, utils } from "ethers"
 import getNextConfig from "next/config"
@@ -6,14 +5,10 @@ import { useCallback, useState } from "react"
 import { useProvider } from "wagmi"
 import { SemaphoreContextType } from "@/context/SemaphoreContext"
 import Post from "../../contract-artifacts/Post.json"
+import SemaphoreAbi from "../../contract-artifacts/Semaphore.json"
+import { postContractStartBlock, semaphoreStartBlock } from "@/constants/contractStartBlocks"
 
 const { publicRuntimeConfig: env } = getNextConfig()
-
-// const ethereumNetwork = env.DEFAULT_NETWORK === "localhost" ? "http://localhost:8545" : env.DEFAULT_NETWORK
-const ethereumNetwork = process.env.NEXT_PUBLIC_NETWORK
-// const ethereumNetwork = "http://localhost:8545";
-
-const postContractStartBlock = 35347713
 
 // TODO: change the data structure to adapt more than 1 group
 export default function useSemaphore(): SemaphoreContextType {
@@ -21,13 +16,16 @@ export default function useSemaphore(): SemaphoreContextType {
   const [_feedback, setFeedback] = useState<string[]>([])
   const [_arweaveMap, setArweaveMap] = useState<Record<string, string>>({})
 
+  const provider = useProvider()
+  const semaphoreContract = new Contract(env.SEMAPHORE_CONTRACT_ADDRESS, SemaphoreAbi, provider)
+
   const refreshUsers = useCallback(async (): Promise<void> => {
-    const semaphore = new SemaphoreEthers(ethereumNetwork, {
-      address: env.SEMAPHORE_CONTRACT_ADDRESS
-    })
+    // TODO: handle not only added event, but also udpated and removed
+    const eventName = "MemberAdded"
+    const filter = semaphoreContract.filters[eventName]([env.GROUP_ID])
+    const events = await semaphoreContract.queryFilter(filter, semaphoreStartBlock) // TODO: queryFilter pagination / max returned data?
 
-    const members = await semaphore.getGroupMembers(env.GROUP_ID)
-
+    const members = events.map((e) => e.args?.identityCommitment.toString())
     setUsers(members)
   }, [])
 
@@ -38,7 +36,6 @@ export default function useSemaphore(): SemaphoreContextType {
     [_users]
   )
 
-  const provider = useProvider()
   const postContract = new Contract(env.POST_CONTRACT_ADDRESS, Post.abi, provider)
 
   const refreshPostSentEvents = useCallback(async (): Promise<void> => {
@@ -56,14 +53,11 @@ export default function useSemaphore(): SemaphoreContextType {
   }, [])
 
   const refreshFeedback = useCallback(async (): Promise<void> => {
-    const semaphore = new SemaphoreEthers(ethereumNetwork, {
-      address: env.SEMAPHORE_CONTRACT_ADDRESS
-    })
+    const eventName = "ProofVerified"
+    const filter = semaphoreContract.filters[eventName]([env.GROUP_ID])
+    const proofVerifiedEvents = await semaphoreContract.queryFilter(filter, semaphoreStartBlock) // TODO: queryFilter pagination / max returned data?
 
-    const proofs = await semaphore.getGroupVerifiedProofs(env.GROUP_ID)
-
-    const signals = proofs.reverse().map(({ signal }: any) => signal)
-
+    const signals = proofVerifiedEvents.reverse().map((event) => event.args?.signal.toString())
     setFeedback(signals)
   }, [])
 

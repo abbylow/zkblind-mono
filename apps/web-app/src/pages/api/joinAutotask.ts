@@ -2,8 +2,8 @@ import { Contract, providers } from "ethers"
 import type { NextApiRequest, NextApiResponse } from "next"
 import Post from "../../../contract-artifacts/Post.json"
 import SemaphoreAbi from "../../../contract-artifacts/Semaphore.json"
+import { semaphoreStartBlock } from "@/constants/contractStartBlocks"
 
-const semaphoreStartBlock = 35252642
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (typeof process.env.POST_CONTRACT_ADDRESS !== "string") {
     throw new Error("Please, define POST_CONTRACT_ADDRESS in your .env file")
@@ -33,13 +33,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     SemaphoreAbi,
     new providers.AlchemyProvider("maticmum", process.env.INFURA_API_KEY)
   )
+  // TODO: handle not only added event, but also udpated and removed
   const eventName = "MemberAdded"
-  const filter = semaphoreContract.filters[eventName]()
+  const filter = semaphoreContract.filters[eventName]([process.env.GROUP_ID])
   const events = await semaphoreContract.queryFilter(filter, semaphoreStartBlock) // TODO: queryFilter pagination / max returned data?
 
-  const members = events
-    .filter((e) => e.args?.groupId.toString() === process.env.GROUP_ID)
-    .map((e) => e.args?.identityCommitment.toString())
+  const members = events.map((e) => e.args?.identityCommitment.toString())
 
   const inGroup = members.includes(identityCommitment)
 
