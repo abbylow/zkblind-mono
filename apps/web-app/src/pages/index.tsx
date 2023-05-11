@@ -137,8 +137,9 @@ export default function Homepage() {
           </Button>
         </Box>
 
-        {_feedback?.length < 1 && (<Center><Loader variant="dots" /></Center>)}
-          
+        {/* TODO: show loading spinner if loading feedback */}
+        {/* {_feedback?.length < 1 && (<Center><Loader variant="dots" /></Center>)} */}
+
         {
           _feedback.map(f => (
             // TODO: show different groups accordingly
