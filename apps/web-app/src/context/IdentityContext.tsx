@@ -28,7 +28,7 @@ export function useIdentityContext() {
   return useContext(IdentityContext);
 }
 
-const identityKey = "identity";
+const identityKey = "global-identity";
 
 // TODO: add the group (or just id) the user has joined
 // TODO: change this to adapt different groups
