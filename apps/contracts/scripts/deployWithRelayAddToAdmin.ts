@@ -22,8 +22,8 @@ async function main() {
   }
 
   // Deploy contracts with Relay
-  const FeedbackFactory = await ethers.getContractFactory("Feedback")
-  const feedbackContract = await FeedbackFactory.connect(relaySigner)
+  const PostFactory = await ethers.getContractFactory("Post")
+  const postContract = await PostFactory.connect(relaySigner)
     .deploy(semaphoreAddress, groupId)
     .then((f) => f.deployed())
 
@@ -31,13 +31,13 @@ async function main() {
     "deploy.json",
     JSON.stringify(
       {
-        FeedbackContract: feedbackContract.address
+        PostContract: postContract.address
       },
       null,
       2
     )
   )
-  console.log(`FeedbackContract deployed: ${feedbackContract.address}\n`)
+  console.log(`PostContract deployed: ${postContract.address}\n`)
 }
 
 if (require.main === module) {
@@ -49,4 +49,5 @@ if (require.main === module) {
     })
 }
 
-// Command: npx hardhat run scripts/deployWithRelayAddToAdmin.ts
+// To deploy: npx hardhat run scripts/deployWithRelayAddToAdmin.ts
+// To verify: npx hardhat verify --network mumbai [DEPLOYED_ADDRESS] [SEMAPHORE_CONTRACT_ADDRESS] [GROUP_ID]

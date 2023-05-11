@@ -34,7 +34,9 @@ function getNetworks(): NetworksUserConfig {
             accounts
         },
         mumbai: {
-            url: `https://polygon-mumbai.infura.io/v3/${infuraApiKey}`,
+            // url: `https://polygon-mumbai.infura.io/v3/${infuraApiKey}`,
+            // change this from infura to alchemy
+            url: `https://polygon-mumbai.g.alchemy.com/v2/${infuraApiKey}`,
             chainId: 80001,
             accounts
         },

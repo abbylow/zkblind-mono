@@ -19,6 +19,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     semaphore.refreshUsers()
+    semaphore.refreshPostSentEvents()
     semaphore.refreshFeedback()
   }, [])
 

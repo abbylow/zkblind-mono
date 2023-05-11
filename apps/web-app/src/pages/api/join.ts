@@ -1,10 +1,10 @@
 import { Contract, providers, Wallet } from "ethers"
 import type { NextApiRequest, NextApiResponse } from "next"
-import Feedback from "../../../contract-artifacts/Feedback.json"
+import Post from "../../../contract-artifacts/Post.json"
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (typeof process.env.FEEDBACK_CONTRACT_ADDRESS !== "string") {
-        throw new Error("Please, define FEEDBACK_CONTRACT_ADDRESS in your .env file")
+    if (typeof process.env.POST_CONTRACT_ADDRESS !== "string") {
+        throw new Error("Please, define POST_CONTRACT_ADDRESS in your .env file")
     }
 
     if (typeof process.env.DEFAULT_NETWORK !== "string") {
@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const ethereumPrivateKey = process.env.ETHEREUM_PRIVATE_KEY
     const ethereumNetwork = process.env.DEFAULT_NETWORK
     const infuraApiKey = process.env.INFURA_API_KEY
-    const contractAddress = process.env.FEEDBACK_CONTRACT_ADDRESS
+    const contractAddress = process.env.POST_CONTRACT_ADDRESS
 
     const provider =
         ethereumNetwork === "localhost"
@@ -30,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             : new providers.InfuraProvider(ethereumNetwork, infuraApiKey)
 
     const signer = new Wallet(ethereumPrivateKey, provider)
-    const contract = new Contract(contractAddress, Feedback.abi, signer)
+    const contract = new Contract(contractAddress, Post.abi, signer)
 
     const { identityCommitment } = req.body
 

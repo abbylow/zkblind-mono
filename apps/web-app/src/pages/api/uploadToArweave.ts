@@ -1,7 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next"
 import Arweave from "arweave"
-import crypto from "crypto"
-import { utils } from "ethers/lib/ethers"
 
 const arweave = Arweave.init({
   host: "arweave.net", // Hostname or IP address for a Arweave host
@@ -18,16 +16,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { postBody, postTags, postParentId } = req.body
 
   try {
-    // create post uuid using crypto.randomUUID
-    const uuid = crypto.randomUUID()
-    const removedHyphen = uuid.replace(/-/g, "")
-    const postId = Buffer.from(removedHyphen, "hex").toString("base64")
-
     // Create a data transaction
     const tx = await arweave.createTransaction(
       {
         data: JSON.stringify({
-          id: postId,
           content: postBody,
           tags: postTags,
           parentId: postParentId
@@ -38,6 +30,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     tx.addTag("Content-Type", "text/json")
     tx.addTag("App-Name", "ZkBlind")
     tx.addTag("App-Version", "v1")
+    tx.addTag("Post-Parent", JSON.stringify(postParentId))
+    tx.addTag("Post-Tags", JSON.stringify(postTags))
 
     await arweave.transactions.sign(tx, privateKey)
 
@@ -49,7 +43,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     res.status(200).json({
-      postId,
       arTxId: tx.id
     })
   } catch (error: any) {

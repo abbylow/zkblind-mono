@@ -5,14 +5,10 @@ import React, {
   ReactNode,
   useEffect
 } from "react";
-import getNextConfig from "next/config";
 import { Identity } from "@semaphore-protocol/identity";
 
 import SemaphoreContext from "@/context/SemaphoreContext";
 import { notifyError } from "@/utils/notification";
-import Feedback from "../../contract-artifacts/Feedback.json"
-
-const { publicRuntimeConfig: env } = getNextConfig();
 
 interface IIdentityContext {
   identity: Identity | null,
@@ -32,7 +28,7 @@ export function useIdentityContext() {
   return useContext(IdentityContext);
 }
 
-const identityKey = "identity";
+const identityKey = "global-identity";
 
 // TODO: add the group (or just id) the user has joined
 // TODO: change this to adapt different groups
@@ -58,33 +54,18 @@ export const IdentityProvider = ({ children }: { children: ReactNode }) => {
 
   const joinGlobalGroup = async (commitmentString: string) => {
     try {
-      let response: any
-      if (env.OPENZEPPELIN_AUTOTASK_WEBHOOK) {
-        response = await fetch(env.OPENZEPPELIN_AUTOTASK_WEBHOOK, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            abi: Feedback.abi,
-            address: env.FEEDBACK_CONTRACT_ADDRESS,
-            functionName: "joinGroup",
-            functionParameters: [commitmentString]
-          })
+      const response = await fetch("api/joinAutotask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          identityCommitment: commitmentString
         })
-        const resJson = await response.json();
-        if (resJson.status === "error") throw Error('Autotask failed');
-      } else {
-        response = await fetch("api/join", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            identityCommitment: commitmentString
-          })
-        })
-      }
+      })
 
       if (response.status === 200) {
+        const resJson = await response.json();
         addUser(commitmentString);
-        setInGlobalGroup(true);
+        setInGlobalGroup(resJson.inGroup);
       } else {
         notifyError({ message: 'Fail to join global group' });
       }
@@ -105,27 +86,6 @@ export const IdentityProvider = ({ children }: { children: ReactNode }) => {
       joinGlobalGroup(commitmentString);
     }
 
-    // Revert this code as the mumbai network doesn't work
-    // try {
-    //   // check if user in global group using API
-    //   // to avoid user manipulate this check and join group more than once
-    //   const response = await fetch("api/checkUserInGroup", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json" },
-    //     body: JSON.stringify({ identityCommitment: commitmentString })
-    //   });
-
-    //   if (response.status === 200) {
-    //     const resJson = await response.json();
-    //     const inGroup = resJson.userAlreadyInGroup;
-    //     setInGlobalGroup(inGroup);
-    //     if (!inGroup) {
-    //       joinGlobalGroup(commitmentString);
-    //     }
-    //   }
-    // } catch (error) {
-    //   console.error('Something went wrong when check if user is in the group already')
-    // }
   };
 
   const identityContext = useMemo(() => ({ identity, onIdentityCreated, inGlobalGroup }), [identity, onIdentityCreated, inGlobalGroup]);
