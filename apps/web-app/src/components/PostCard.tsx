@@ -24,7 +24,7 @@ const PostCard: React.FC<IPostCard> = ({
 
   const getPostInfo = async () => {
     try {
-      const res = await arweave.api.get(`/${arweaveTxId}`)
+      const res = await arweave.api.get(arweaveTxId)
       setPostBody(res.data.content)
       // setPostTags(res.data.tags)
       // setPostParentId(res.data.parentId)
