@@ -9,7 +9,11 @@ interface IPostCard {
   arHashedId: string
 }
 
-const arweave = Arweave.init({});
+const arweave = Arweave.init({
+  host: "arweave.net", // Hostname or IP address for a Arweave host
+  port: 443, // Port
+  protocol: "https" // Network protocol http or https
+})
 
 const PostCard: React.FC<IPostCard> = ({
   group = '',
