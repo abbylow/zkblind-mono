@@ -137,8 +137,8 @@ export default function Homepage() {
           </Button>
         </Box>
 
-        {/* TODO: show loading spinner if loading feedback */}
-        {/* {_feedback?.length < 1 && (<Center><Loader variant="dots" /></Center>)} */}
+        {/* TODO: show this spinner only if loading feedback, don't show when the loaded _feedback is indeed empty */}
+        {_feedback?.length < 1 && (<Center><Loader variant="dots" /></Center>)}
 
         {
           _feedback.map(f => (

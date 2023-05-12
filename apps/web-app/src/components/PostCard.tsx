@@ -24,10 +24,13 @@ const PostCard: React.FC<IPostCard> = ({
 
   const getPostInfo = async () => {
     try {
-      const res = await arweave.api.get(arweaveTxId)
-      setPostBody(res.data.content)
-      // setPostTags(res.data.tags)
-      // setPostParentId(res.data.parentId)
+      const res = await arweave.transactions.getData(arweaveTxId, { decode: true, string: true });
+      if (typeof res === 'string') {
+        const resJson = JSON.parse(res)
+        setPostBody(resJson.content)
+        // setPostTags(resJson.tags)
+        // setPostParentId(resJson.parentId)
+      }
     } catch (error) {
       console.error(error)
     }
@@ -45,7 +48,7 @@ const PostCard: React.FC<IPostCard> = ({
         {group}
       </Badge>
       <Skeleton mt={4} visible={!postBody}>
-        <Text my={8} sx={{overflowWrap: 'break-word'}}>
+        <Text my={8} sx={{ overflowWrap: 'break-word' }}>
           {postBody}
         </Text>
       </Skeleton>
