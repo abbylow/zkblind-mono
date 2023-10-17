@@ -1,4 +1,12 @@
-# Semaphore Hardhat + Next.js + SemaphoreEthers template
+# ZkBlind
+An anonymous workplace social network that let you share your thoughts without revealing your identity
+
+## Learn more about ZkBlind features and technical design
+Check the documentation [here](https://create-for-better.gitbook.io/zkblind/)
+
+
+
+## Semaphore Hardhat + Next.js + SemaphoreEthers template
 
 This project is a complete application that demonstrates a basic Semaphore use case. It comes with a sample contract, a test for that contract and a sample task that deploys that contract. It also contains a frontend to play around with the contract.
 
